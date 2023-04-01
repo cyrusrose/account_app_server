@@ -1,0 +1,41 @@
+version: '3.4'
+
+services:
+  account:
+    image: account
+    container_name: account
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://accdb:5432/accdb
+      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    networks:
+      - network
+    ports:
+      - 8080:8080
+      - 5005:5005
+    depends_on:
+      - accdb
+          
+  accdb: 
+    image: 'postgres:15.1-alpine'
+    container_name: account_postgres
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 50:5432
+    networks:
+      - network
+    
+    environment:
+      - POSTGRES_DB=accdb
+      - POSTGRES_USER=compose-postgres
+      - POSTGRES_PASSWORD=compose-postgres
+
+volumes:
+  postgres-data:
+
+networks:
+  network:
